@@ -1,0 +1,20 @@
+#drawTable{
+    text-align: center;
+    background-color: khaki;
+    margin: 5px 0 5px;
+    padding: 20px;
+}
+h3{
+    text-align: center;
+    color:lime;
+    background-color:hotpink ;
+}
+button{
+    border-radius: 13px;
+}
+img{
+    border-radius: 15px;
+}
+nav{
+    color: white;
+}

@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>upload</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+    <script src="Product.js"></script>
+    <link rel="stylesheet" href="css/uploand.css">
+    <script src="https://www.gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light " style="background-color: hotpink">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="img/logo.jpeg" height="90" width="120"/></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="index.html">Trang chủ</a>
+                </li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Mặt Hàng
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#">Combo</a></li>
+                        <li><a class="dropdown-item" href="#">Hàng giảm giá</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">Hàng Nhập Khẩu</a></li>
+                    </ul>
+                <li id="upProduct" class="nav-item">
+                </li>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="input-group mb-3">
+            <input oninput="createProduct()" type="text" class="form-control" placeholder="name.."
+                   aria-label="Recipient's username"
+                   aria-describedby="basic-addon2" id="name">
+            <span class="input-group-text">Name</span>
+
+        </div>
+    </div>
+    <p style="color: red" id="failName"></p>
+    <div class="input-group mb-3">
+        <input oninput="createProduct()" type="number" class="form-control" placeholder="Price..."
+               aria-label="Recipient's username"
+               aria-describedby="basic-addon2" id="price">
+        <span class="input-group-text">Price</span>
+    </div>
+    <p style="color: red" id="failPrice"></p>
+    <div id="load_Img">
+        <progress value="0" max="100" id="uploader">0%</progress>
+        <input type="file" value="upload" onclick="Img()" accept=".jpeg" id="fileButton">
+        <div id="imgDiv"></div>
+        <button class="btn btn-success" onclick="submitData()">Create Product</button>
+    </div>
+
+</div>
+<p style="color: red;text-align: center" id="failImg"></p>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Up product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="col-form-label">Product Name</label>
+                        <input type="text" class="form-control" id="up_name">
+
+                    </div>
+                    <table>
+                        <tr>
+                            <td>old image</td>
+                            <td>new image</td>
+                        </tr>
+                        <tr>
+                            <td id="old_image"></td>
+                            <td id="new_image"></td>
+                        </tr>
+                    </table>
+                    <div class="mb-3">
+                        <label class="col-form-label">Price</label>
+                        <input type="number" class="form-control" id="up_price">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" onclick="upProduct()" data-bs-dismiss="modal" class="btn btn-primary">up load
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<table class="table mx-4" style=" width: 100%;">
+    <tr>
+        <th> stt</th>
+        <th>Product</th>
+        <th>Image</th>
+        <th>Price</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    <tbody id="drawTable"></tbody>
+</table>
+<a href="index.html">
+    <button style="margin-left: 45%;background-color: darkturquoise;width: 100px">Home</button>
+</a>
+<script>
+
+    let id;
+    // let productName;
+    let listElement = JSON.parse(localStorage.getItem('list_element'));
+    if (listElement == null) {
+        listElement = [];
+        let isCheck;
+    }
+
+    function showListElement() {
+        let drawTable = '';
+        for (let i = 0; i < listElement.length; i++) {
+            drawTable += `<tr>
+<td>${i + 1}</td>
+<td>${listElement[i].name}</td>
+<td><img src="${listElement[i].image}" width="100px"  alt=""></td>
+<td>${listElement[i].price}</td>
+<td><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+ onclick="upData(${listElement[i].id})" data-bs-whatever="@mdo">Edit</button></td>
+<td><button style="background-color: red; color: white"  onclick="deleteProduct(` + i + `)">Delete</button></td>
+</tr>`
+        }
+        document.getElementById('drawTable').innerHTML = drawTable;
+
+    }
+
+    showListElement();
+
+    function createProduct() {
+        let check = true;
+        let id;
+        let name = document.getElementById('name').value;
+        let nameImage = getImage();
+        let price = +document.getElementById('price').value;
+        if (listElement.length == 0) {
+            id = 1;
+        } else {
+            id = listElement[listElement.length - 1].id + 1
+        }
+        if (name.trim() == '') {
+            check = false;
+            document.getElementById('failName').innerHTML = 'tên sản phẩm không được bỏ trống';
+        } else {
+            document.getElementById('failName').innerHTML = '';
+        }
+        if (nameImage.trim() == '') {
+            document.getElementById('failImg').innerHTML = 'Chưa up load ảnh';
+            check = false;
+        }
+        if (price <= 0) {
+            document.getElementById('failPrice').innerHTML = 'giá tiền không hợp lệ';
+            check = false;
+        } else {
+            document.getElementById('failPrice').innerHTML = '';
+        }
+        if (check) {
+            productName = new Product(id, name, nameImage, price);
+            isCheck = true;
+        } else {
+            isCheck = false;
+        }
+
+    }
+
+    function submitData() {
+        createProduct();
+        if (isCheck) {
+            listElement.push(productName)
+            localStorage.removeItem('list_element');
+            localStorage.setItem('list_element', JSON.stringify(listElement))
+            document.getElementById('failImg').innerHTML = `<h5 style="text-align: center;color: blue">Thêm thành công</h5>`
+            showListElement();
+            document.getElementById("imgDiv").innerHTML = '';
+            document.getElementById('name').value = '';
+            document.getElementById('price').value = '';
+        }
+
+    }
+
+    //tim id sản phẩm cần chỉnh sửa
+    function findById(id) {
+        for (let i = 0; i < listElement.length; i++) {
+            if (id === listElement[i].id) {
+                return listElement[i];
+            }
+        }
+
+    }
+
+    //copy dữ liệu vào
+    function upData(i) {
+        let upImage = getImage();
+        let element = findById(i);
+        id = i;
+        document.getElementById('up_name').value = element.name;
+        document.getElementById('up_price').value = element.price;
+        document.getElementById('old_image').innerHTML = `<td><img src="${element.image}"></td>`;
+        document.getElementById('new_image').innerHTML = `<td><img src="${upImage}.jpeg" ></td>`;
+
+    }
+
+    //hiển thị sản phẩm đã sửa
+    function upProduct() {
+        let upElement = findById(id);
+        let upName = document.getElementById('up_name').value;
+        let upImage = getImage();
+        let upPrice = +document.getElementById('up_price').value;
+        upElement.name = upName;
+        upElement.image = upImage;
+        upElement.price = upPrice;
+        localStorage.removeItem('list_element');
+        localStorage.setItem('list_element', JSON.stringify(listElement))
+        showListElement();
+    }
+
+    //xoá sản phẩm
+    function deleteProduct(index) {
+        if (confirm('bạn muốn xóa không')) {
+            listElement.splice(index, 1);
+        }
+        localStorage.removeItem('list_element');
+        localStorage.setItem('list_element', JSON.stringify(listElement))
+        showListElement();
+    }
+
+    function Img() {
+        document.getElementById("imgDiv").innerHTML = '';
+        document.getElementById('failImg').innerHTML = '';
+
+    }
+
+</script>
+<script src="Ursefirebass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+</html>

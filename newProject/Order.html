@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+        rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+        crossorigin="anonymous">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light " style="background-color: hotpink">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="img/logo.jpeg" height="90" width="120"/></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="index.html">Trang chủ</a>
+        </li>
+
+
+        </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<table   class="table mx-4" style=" width: 100%; text-align: center">
+  <tr >
+    <th> stt</th>
+    <th>Product</th>
+    <th>Quantity</th>
+    <th>Name</th>
+    <th>Address</th>
+    <th>phone</th>
+    <th>Date </th>
+    <th>Xac nhan</th>
+  </tr>
+  <tbody id="drawTable"></tbody>
+</table>
+<script>
+  let listOrder=JSON.parse(localStorage.getItem('list_order'));
+  function showListOrder(){
+    let drawTable = '';
+    let drawTable1 = '';
+    let drawTable2='';
+    for (let i=0;i<listOrder.length;i++){
+      for (let j=0;j<listOrder[i].cart.length;j++){
+      drawTable1+=  `
+<p>${listOrder[i].cart[j].product.name}</p>
+`
+        drawTable2+=`<p>${listOrder[i].cart[j].quantity}</p>`
+      }
+      drawTable+=`<tr>
+<td>${i+1}</td>
+<td>${drawTable1}</td>
+<td>${drawTable2}</td>
+<td>${listOrder[i].name}</td>
+<td>${listOrder[i].address}</td>
+<td>${listOrder[i].phone}</td>
+<td>${listOrder[i].date}</td>
+<td><button onclick="xacnhan(`+i+`)">ship thanh cong</button></td>
+</tr>`
+    }
+document.getElementById('drawTable').innerHTML= drawTable;
+  }
+  showListOrder()
+  function xacnhan(index) {
+    if (confirm('xac nhan thong tin')){
+      listOrder.splice(index, 1);
+    }
+    localStorage.removeItem('list_order')
+    localStorage.setItem('list_order', JSON.stringify(listOrder))
+    showListOrder()
+  }
+</script>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</html>
